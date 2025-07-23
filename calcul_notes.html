@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vérifie-tes-notes.B2</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+      }
+      h1,
+      h2 {
+        color: #260f4a;
+      }
+      label,
+      input {
+        display: block;
+        margin-top: 10px;
+      }
+      input[type="text"],
+      input[type="number"] {
+        width: 60%;
+        padding: 8px;
+        margin-bottom: 5px;
+      }
+      button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        background-color: #3d009e;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #260f4a;
+      }
+      table {
+        margin-top: 20px;
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+      }
+      th {
+        background-color: #260f4a;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>VERIFIER-TES-NOTES.B2</h1>
+
+    <label for="nom">Nom de l’étudiant :</label>
+    <input type="text" id="nom" placeholder="Entrez le nom de l’étudiant" />
+
+    <label for="nbCours">Nombre de cours :</label>
+    <input type="number" id="nbCours" placeholder="Ex: 5" min="1" max="20" />
+    <button onclick="genererChamps()">Générer les cours</button>
+
+    <div id="coursContainer"></div>
+
+    <button onclick="ajouterEtudiant()">Ajouter l’étudiant</button>
+
+    <h2>Liste des étudiants</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Cours</th>
+          <th>Notes (sur)</th>
+          <th>Moyenne (%)</th>
+          <th>Mention</th>
+        </tr>
+      </thead>
+      <tbody id="tableauResultats">
+        <!-- Résultats ici -->
+      </tbody>
+    </table>
+
+    <script>
+      function genererChamps() {
+        let nbCours = parseInt(document.getElementById("nbCours").value);
+        let container = document.getElementById("coursContainer");
+        container.innerHTML = ""; // Vider anciens champs
+
+        if (isNaN(nbCours) || nbCours <= 0) {
+          alert("Veuillez entrer un nombre de cours valide.");
+          return;
+        }
+
+        for (let i = 1; i <= nbCours; i++) {
+          // Nom du cours
+          let labelCours = document.createElement("label");
+          labelCours.textContent = `Cours ${i} :`;
+          let inputCours = document.createElement("input");
+          inputCours.type = "text";
+          inputCours.id = `cours${i}`;
+          inputCours.placeholder = `Nom du cours ${i}`;
+
+          // Note obtenue
+          let inputNote = document.createElement("input");
+          inputNote.type = "number";
+          inputNote.id = `note${i}`;
+          inputNote.placeholder = `Note obtenue`;
+          inputNote.min = 0;
+
+          // Barème
+          let inputBareme = document.createElement("input");
+          inputBareme.type = "number";
+          inputBareme.id = `bareme${i}`;
+          inputBareme.placeholder = `Barème (sur combien ?)`;
+          inputBareme.min = 1;
+
+          // Ajouter au container
+          container.appendChild(labelCours);
+          container.appendChild(inputCours);
+          container.appendChild(inputNote);
+          container.appendChild(inputBareme);
+        }
+      }
+
+      function ajouterEtudiant() {
+        let nom = document.getElementById("nom").value.trim();
+        let nbCours = parseInt(document.getElementById("nbCours").value);
+        let cours = [];
+        let notesAffichees = [];
+        let totalPourcentage = 0;
+
+        if (nom === "" || isNaN(nbCours) || nbCours <= 0) {
+          alert("Veuillez remplir le nom et le nombre de cours.");
+          return;
+        }
+
+        for (let i = 1; i <= nbCours; i++) {
+          let coursNom = document.getElementById(`cours${i}`).value.trim();
+          let note = parseFloat(document.getElementById(`note${i}`).value);
+          let bareme = parseFloat(document.getElementById(`bareme${i}`).value);
+
+          if (coursNom === "" || isNaN(note) || isNaN(bareme) || bareme <= 0) {
+            alert(
+              `Veuillez remplir toutes les informations pour le cours ${i}.`
+            );
+            return;
+          }
+
+          cours.push(coursNom);
+          notesAffichees.push(`${note}/${bareme}`);
+
+          totalPourcentage += (note / bareme) * 100; // Convertir chaque note en %
+        }
+
+        let moyenne = (totalPourcentage / nbCours).toFixed(2);
+        let mention = determinerMention(moyenne);
+
+        // Ajouter au tableau
+        let tableau = document.getElementById("tableauResultats");
+        let ligne = `<tr>
+                            <td>${nom}</td>
+                            <td>${cours.join(", ")}</td>
+                            <td>${notesAffichees.join(", ")}</td>
+                            <td>${moyenne}%</td>
+                            <td>${mention}</td>
+                        </tr>`;
+        tableau.innerHTML += ligne;
+
+        // Réinitialiser les champs
+        document.getElementById("nom").value = "";
+        document.getElementById("nbCours").value = "";
+        document.getElementById("coursContainer").innerHTML = "";
+      }
+
+      function determinerMention(moyenne) {
+        moyenne = parseFloat(moyenne);
+        if (moyenne >= 90) return "🌟 Excellent";
+        else if (moyenne >= 80) return "🏅 Très bien";
+        else if (moyenne >= 70) return "👍 Bien";
+        else if (moyenne >= 50) return "🙂 Passable";
+        else if (moyenne >= 30) return "⚠️ Médiocre";
+        else return "❌ Mauvais";
+      }
+    </script>
+  </body>
+</html>
